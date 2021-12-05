@@ -1,6 +1,4 @@
-import enum
-import re
-from typing import Any, List, Tuple
+from typing import List, Tuple
 
 # lines = open("example-input.txt", "r").readlines()
 lines = open("input.txt", "r").readlines()
@@ -78,5 +76,4 @@ for number in numbers_to_draw:
         if did_board_win(board):
             score = calc_score(board, number)
             print(f"board no. {index} won with score {score} \n {board}")
-            boards = list(filter(lambda x: board is not x, boards))
-            # exit()
+            exit()
