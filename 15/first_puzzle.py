@@ -67,7 +67,7 @@ target = (len(lines) - 1, len(lines[0]) - 1)
 result = search(src, target, graph, costs, parents)
 
 shortest_path = backpedal(src, target, result)
-print(f"shortest path={shortest_path}")
+# print(f"shortest path={shortest_path}")
 
 graph, _ = build_graph(lines)
 total_cost = 0
