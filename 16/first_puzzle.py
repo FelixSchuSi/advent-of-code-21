@@ -1,37 +1,66 @@
-from typing import Dict, List, Tuple
-from itertools import chain
+import sys
 
-lines = open("example-input.txt", "r").readlines()
-# lines = open("input.txt", "r").readlines()
+# ll = open("example-input.txt").read().strip()
+ll = open("input.txt").read().strip()
 
-
-def process_input(lines: List[str]) -> Tuple[int, int, List[str]]:
-    line = bin(int(lines[0].strip(), 16))[2:]
-    version = int(line[0:3], base=2)
-    id = int(line[3:6], base=2)
-    payload = line[6:]
-
-    return version, id, payload
+d = bin(int(ll, 16))[2:]
+while len(d) < 4 * len(ll):
+    d = "0" + d
 
 
-def process_literal(payload: List[str]) -> int:
-    payload = [payload[0 + i : 5 + i] for i in range(0, len(payload), 5)]
-    payload = list(filter(lambda x: not (x == "0" * len(x) and len(x) < 5), payload))
-    literal = [part[1:] for part in payload]
-    return int("".join(literal), 2)
+def peek(data, n):
+    ret = data[0][:n]
+    data[0] = data[0][n:]
+    return ret
 
 
-def process_operator(payload: List[str]) -> int:
-    length_type_id = payload[0]
-    payload = payload[1:]
-    if length_type_id == 0:
-        
-    return
+sumofversions = 0
 
 
-version, id, payload = process_input(lines)
-if id == 4:
-    literal = process_literal(payload)
-    print(literal)
-else:
-    operator = process_operator(payload)
+def parse(data):
+    global sumofversions
+
+    version = int(peek(data, 3), 2)
+    sumofversions += version
+
+    tid = int(peek(data, 3), 2)
+    if tid == 4:
+        t = []
+        while True:
+            cnt, *v = peek(data, 5)
+            t += v
+            if cnt == "0":
+                break
+        return int("".join(t), 2)
+
+    ltid = peek(data, 1)[0]
+    spv = []
+    if ltid == "0":
+        subpacketslen = int(peek(data, 15), 2)
+        subpackets = [peek(data, subpacketslen)]
+        while subpackets[0]:
+            spv.append(parse(subpackets))
+    else:
+        spv = [parse(data) for i in range(int(peek(data, 11), 2))]
+    if tid == 0:
+        return sum(spv)
+    elif tid == 1:
+        p = 1
+        for x in spv:
+            p *= x
+        return p
+    elif tid == 2:
+        return min(spv)
+    elif tid == 3:
+        return max(spv)
+    elif tid == 5:
+        return int(spv[0] > spv[1])
+    elif tid == 6:
+        return int(spv[0] < spv[1])
+    elif tid == 7:
+        return int(spv[0] == spv[1])
+
+
+p2 = parse([d])
+print(sumofversions)
+print(p2)
